@@ -10,6 +10,7 @@ import { createTheme } from "src/theme";
 import { createEmotionCache } from "src/utils/create-emotion-cache";
 import "simplebar-react/dist/simplebar.min.css";
 import { useCORS } from "src/hooks/use-cors";
+import { useGetCookies } from "src/hooks/use-get-cookies";
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -19,7 +20,7 @@ const App = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
   useNProgress();
-  useCORS();
+  useGetCookies();
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
