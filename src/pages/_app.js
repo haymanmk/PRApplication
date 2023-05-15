@@ -9,8 +9,8 @@ import { useNProgress } from "src/hooks/use-nprogress";
 import { createTheme } from "src/theme";
 import { createEmotionCache } from "src/utils/create-emotion-cache";
 import "simplebar-react/dist/simplebar.min.css";
-import { useCORS } from "src/hooks/use-cors";
 import { useGetCookies } from "src/hooks/use-get-cookies";
+import { ReduxProvider } from "src/redux/state-provider";
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -20,7 +20,7 @@ const App = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
   useNProgress();
-  useGetCookies();
+  // useGetCookies();
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
@@ -35,12 +35,14 @@ const App = (props) => {
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <AuthProvider>
           <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <AuthConsumer>
-              {(auth) =>
-                auth.isLoading ? <SplashScreen /> : getLayout(<Component {...pageProps} />)
-              }
-            </AuthConsumer>
+            <ReduxProvider>
+              <CssBaseline />
+              <AuthConsumer>
+                {(auth) =>
+                  auth.isLoading ? <SplashScreen /> : getLayout(<Component {...pageProps} />)
+                }
+              </AuthConsumer>
+            </ReduxProvider>
           </ThemeProvider>
         </AuthProvider>
       </LocalizationProvider>
