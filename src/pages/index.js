@@ -7,13 +7,12 @@ import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
 import { Box, Button, Container, Stack, SvgIcon, Typography } from "@mui/material";
 import { useSelection } from "src/hooks/use-selection";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
-import { CustomersTable } from "src/sections/customer/customers-table";
-import { CustomersSearch } from "src/sections/customer/customers-search";
 import { applyPagination } from "src/utils/apply-pagination";
 import { useGetCookies } from "src/hooks/use-get-cookies";
-import useGetPRList from "src/hooks/use-list-pr";
+import { useGetPRList } from "src/hooks/use-list-pr";
 import { useSelector } from "react-redux";
 import { PRSearch } from "src/sections/purchase-request/pr-search";
+import { PRTable } from "src/sections/purchase-request/pr-table";
 
 const now = new Date();
 
@@ -23,22 +22,23 @@ const usePRData = (page, rowsPerPage) => {
   return useMemo(() => {
     if (data) return applyPagination(data, page, rowsPerPage);
     else return [];
-  }, [page, rowsPerPage]);
+  }, [data, page, rowsPerPage]);
 };
 
-const useCustomerIds = (customers) => {
+const usePRIds = (PRs) => {
   return useMemo(() => {
-    return customers.map((customer) => customer.id);
-  }, [customers]);
+    return PRs.map((pr) => pr.prHeaderId);
+  }, [PRs]);
 };
 
 const Page = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const customers = usePRData(page, rowsPerPage);
-  const customersIds = useCustomerIds(customers);
-  const customersSelection = useSelection(customersIds);
+  const PRs = usePRData(page, rowsPerPage);
+  const PRsIds = usePRIds(PRs);
+  const PRsSelection = useSelection(PRsIds);
   data = useSelector((state) => state.pr_info.pr_list);
+  // console.log(PRs);
 
   useGetCookies();
   useGetPRList();
@@ -105,19 +105,21 @@ const Page = () => {
               </div>
             </Stack>
             <PRSearch />
-            <CustomersTable
-              count={data.length}
-              items={customers}
-              onDeselectAll={customersSelection.handleDeselectAll}
-              onDeselectOne={customersSelection.handleDeselectOne}
-              onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
-              onSelectAll={customersSelection.handleSelectAll}
-              onSelectOne={customersSelection.handleSelectOne}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              selected={customersSelection.selected}
-            />
+            {data && (
+              <PRTable
+                count={data.length}
+                items={PRs}
+                onDeselectAll={PRsSelection.handleDeselectAll}
+                onDeselectOne={PRsSelection.handleDeselectOne}
+                onPageChange={handlePageChange}
+                onRowsPerPageChange={handleRowsPerPageChange}
+                onSelectAll={PRsSelection.handleSelectAll}
+                onSelectOne={PRsSelection.handleSelectOne}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                selected={PRsSelection.selected}
+              />
+            )}
           </Stack>
         </Container>
       </Box>

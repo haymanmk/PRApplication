@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { storeAction } from "src/redux/state-slice";
 
-export default function useGetPRList() {
+export function useGetPRList() {
   const cookies = useSelector((state) => state.cookies);
   const dispatch = useDispatch();
   const { updatePRInfo } = storeAction;
