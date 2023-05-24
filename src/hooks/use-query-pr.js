@@ -4,7 +4,7 @@ import { useGetCookies } from "./use-get-cookies";
 const { useEffect, useState } = require("react");
 
 export function useQueryPR(prNum = undefined) {
-  const [pr, setPR] = useState({});
+  const [pr, setPR] = useState({ rows: [{}] });
   const cookies = useSelector((state) => state.cookies);
   const formData = new URLSearchParams();
 

@@ -18,11 +18,11 @@ const now = new Date();
 
 let data = [];
 
-const usePRData = (page, rowsPerPage) => {
+const usePRData = (data, page, rowsPerPage) => {
   return useMemo(() => {
-    if (data) return applyPagination(data, page, rowsPerPage);
+    if (data.length) return applyPagination(data, page, rowsPerPage);
     else return [];
-  }, [data, page, rowsPerPage]);
+  }, [data.length, page, rowsPerPage]);
 };
 
 const usePRIds = (PRs) => {
@@ -32,13 +32,12 @@ const usePRIds = (PRs) => {
 };
 
 const Page = () => {
+  data = useSelector((state) => state.pr_info.pr_list);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const PRs = usePRData(page, rowsPerPage);
+  const PRs = usePRData(data, page, rowsPerPage);
   const PRsIds = usePRIds(PRs);
   const PRsSelection = useSelection(PRsIds);
-  data = useSelector((state) => state.pr_info.pr_list);
-  // console.log(PRs);
 
   useGetCookies();
   useGetPRList();
@@ -105,7 +104,7 @@ const Page = () => {
               </div>
             </Stack>
             <PRSearch />
-            {data && (
+            {data.length && (
               <PRTable
                 count={data.length}
                 items={PRs}

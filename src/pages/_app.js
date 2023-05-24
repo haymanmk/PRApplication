@@ -11,6 +11,7 @@ import { createEmotionCache } from "src/utils/create-emotion-cache";
 import "simplebar-react/dist/simplebar.min.css";
 import { useGetCookies } from "src/hooks/use-get-cookies";
 import { ReduxProvider } from "src/redux/state-provider";
+import { useEffect } from "react";
 
 const clientSideEmotionCache = createEmotionCache();
 
