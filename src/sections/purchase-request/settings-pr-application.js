@@ -23,17 +23,21 @@ export const SettingsPRApplication = (props) => {
     userAccount,
     handleApplicantChange,
     applicationCostCenter,
+    handleApplicationCostCenterChange,
     costCenter,
     costCenterLocation,
     applicationShipTo,
+    handleApplicationShipToChange,
     location,
     applicationVendor,
     vendor,
     handleApplicationVendorChange,
     handleVendorInputChange,
     applicationProject,
+    handleApplicationProjectChange,
     project,
     applicationDIYProject,
+    handleApplicationDIYProjectChange,
     diyProject,
     requiredDate,
     handleRequiredDateChange,
@@ -65,6 +69,7 @@ export const SettingsPRApplication = (props) => {
                   required
                   id="input_applicant_name"
                   value={applicantInfo}
+                  onChange={handleApplicantChange}
                   options={userAccount}
                   optionKeys={["empid", "displayNameC"]}
                   textFieldLabel="Applicant"
@@ -75,6 +80,7 @@ export const SettingsPRApplication = (props) => {
                   required
                   id="input_cost_center"
                   value={applicationCostCenter}
+                  onChange={handleApplicationCostCenterChange}
                   options={costCenter}
                   optionKeys={["displayName"]}
                   textFieldLabel="Cost Center"
@@ -96,6 +102,7 @@ export const SettingsPRApplication = (props) => {
                   required
                   id="input_ship_to"
                   value={applicationShipTo}
+                  onChange={handleApplicationShipToChange}
                   options={location}
                   optionKeys={["locationCode"]}
                   textFieldLabel="Ship To"
@@ -118,6 +125,7 @@ export const SettingsPRApplication = (props) => {
                   required
                   id="input_project"
                   value={applicationProject}
+                  onChange={handleApplicationProjectChange}
                   options={project}
                   optionKeys={["projectName"]}
                   textFieldLabel="Fin. Project"
@@ -128,6 +136,7 @@ export const SettingsPRApplication = (props) => {
                   required
                   id="input_diy_project"
                   value={applicationDIYProject}
+                  onChange={handleApplicationDIYProjectChange}
                   options={diyProject}
                   optionKeys={["displayValue"]}
                   textFieldLabel="DIY Project"

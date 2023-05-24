@@ -122,8 +122,7 @@ const Page = () => {
 
   const _id = useRef(Math.random().toString().substring(2, 8));
   const handleAddNewItemClick = useCallback((event) => {
-    console.log(purchaseItems);
-    // const _id = Math.random().toString().substring(2, 10);
+    // console.log(purchaseItems);
     setPurchaseItems((prev) => ({
       ...prev,
       [_id.current]: {
@@ -144,51 +143,54 @@ const Page = () => {
     }));
   }, []);
 
-  const handleCalculateTotal = useCallback(() => {
-    console.log("calculate total: ", purchaseItems);
-    if (Object.keys(purchaseItems).length) {
-      const subtotal = Object.values(purchaseItems).reduce(
-        (prev, current) => prev + current.quantity * current.unitPtice,
-        0
-      );
-      const taxRate = 0.05;
-      let tax = 0;
-      let total = 0;
+  const handleCalculateTotal =
+    (() => {
+      console.log("calculate total: ", purchaseItems);
+      if (Object.keys(purchaseItems).length) {
+        console.log("calculate: ", purchaseItems);
+        const subtotal = Object.values(purchaseItems).reduce(
+          (prev, current) => prev + current.quantity * current.unitPtice,
+          0
+        );
+        const taxRate = 0.05;
+        let tax = 0;
+        let total = 0;
 
-      if (Object.values(applicationVendor).length) {
-        const _dc = Math.random().toString().substring(2, 10);
-        const url =
-          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/GetSubtotalToTotalAndTax.action?_dc=" +
-          _dc;
+        if (Object.values(applicationVendor).length) {
+          const _dc = Math.random().toString().substring(2, 10);
+          const url =
+            "https://shiwpa-etrex9.garmin.com:9099/FINSystem/GetSubtotalToTotalAndTax.action?_dc=" +
+            _dc;
 
-        const formData = new URLSearchParams();
-        formData.append("amount", subtotal.toString());
-        formData.append("currencyCode", vendor.currency);
-        formData.append("taxCodeId", vendor.taxCodeId);
-        formData.append("roundingRule", vendor.roundingRule);
+          const formData = new URLSearchParams();
+          formData.append("amount", subtotal.toString());
+          formData.append("currencyCode", vendor.currency);
+          formData.append("taxCodeId", vendor.taxCodeId);
+          formData.append("roundingRule", vendor.roundingRule);
 
-        const body = {
-          url: url,
-          headers: {
-            Cookie: cookies,
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          body: formData.toString(),
-        };
-        QueryData(JSON.stringify(body))
-          .then((res) => {
-            const _data = res.rows;
-            tax = _data.tax;
-            total = _data.price;
-          })
-          .catch((err) => console.error(err));
-      } else {
-        tax = (subtotal * taxRate).toFixed(2);
-        total = subtotal * (1 + taxRate).toFixed(2);
+          const body = {
+            url: url,
+            headers: {
+              Cookie: cookies,
+              "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            },
+            body: formData.toString(),
+          };
+          QueryData(JSON.stringify(body))
+            .then((res) => {
+              const _data = res.rows;
+              tax = _data.tax;
+              total = _data.price;
+            })
+            .catch((err) => console.error(err));
+        } else {
+          tax = (subtotal * taxRate).toFixed(2);
+          total = subtotal * (1 + taxRate).toFixed(2);
+        }
+        setTotal({ subtotal, tax, total });
       }
-      setTotal({ subtotal, tax, total });
-    }
-  }, []);
+    },
+    [cookies, purchaseItems, applicationVendor]);
 
   useEffect(() => {
     if (Object.keys(prInfo).length) {
