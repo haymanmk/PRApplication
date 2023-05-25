@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Divider, Stack, Typography } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
 import { useQueryPR } from "src/hooks/use-query-pr";
@@ -7,50 +7,21 @@ import { useSelector } from "react-redux";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { QueryData } from "src/utils/pr/query-data";
 import { SettingsPRApplication } from "src/sections/purchase-request/settings-pr-application";
+import { PRItemTable } from "src/sections/purchase-request/settings-item-table";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
 import { initForm, prLineForm } from "src/utils/pr/save-all-init-form";
+import { useGetPROptions } from "src/hooks/use-get-pr-options";
+import { useCommonInfo } from "src/hooks/use-common-info";
 
 const Page = () => {
-  const cookies = useSelector((state) => state.cookies);
-  const [category, setCategory] = useState(JSON.parse(localStorage.getItem("pr_category")));
-  const [costCenter, setCostCenter] = useState(JSON.parse(localStorage.getItem("pr_cost_center")));
-  const [costCenterLocation, setCostCenterLocation] = useState(
-    JSON.parse(localStorage.getItem("pr_cost_center_location"))
-  );
-  const [location, setLocation] = useState(JSON.parse(localStorage.getItem("pr_location")));
-  const [vendor, setVendor] = useState([]);
-  const [project, setProject] = useState(JSON.parse(localStorage.getItem("pr_project")));
-  const [diyProject, setDIYProject] = useState(JSON.parse(localStorage.getItem("pr_diy_project")));
-  const [userAccount, setUserAccount] = useState(
-    JSON.parse(localStorage.getItem("pr_user_account")) || [
-      {
-        empid: "17521",
-        displayNameC: "詹政翰(Hayman Chan)",
-      },
-    ]
-  );
-  const [prNo, setPRNo] = useState();
-  const [applicantInfo, setApplicantInfo] = useState({
-    empid: "",
-    displayNameC: "",
-  });
-  const [applicationCostCenter, setApplicationCostCenter] = useState({ displayName: "" });
-  const [applicationShipTo, setApplicationShipTo] = useState({ locationCode: "" });
-  const [applicationVendor, setApplicationVendor] = useState();
-  const [applicationProject, setApplicationProject] = useState({ projectName: "" });
-  const [applicationDIYProject, setApplicationDIYProject] = useState({ displayValue: "" });
-  const [requiredDate, setRequiredData] = useState();
-  const [applicationReason, setApplicationReason] = useState("");
-  const [applicationDescription, setApplicationDescription] = useState("");
-  const [purchaseItems, setPurchaseItems] = useState({});
-  const [total, setTotal] = useState({ subtotal: 0, tax: 0, total: 0 });
-
   const router = useRouter();
   const paramPRNo = router.query.paramPRNo?.[0];
-  // console.log("paramPRNo: ", paramPRNo);
-
-  let prInfo = useQueryPR(paramPRNo).rows[0];
+  const cookies = useSelector((state) => state.cookies);
+  const [purchaseItems, setPurchaseItems] = useState({});
+  const [total, setTotal] = useState({ subtotal: 0, tax: 0, total: 0 });
+  const prOptions = useGetPROptions(cookies);
+  const commonInfo = useCommonInfo(prOptions);
 
   const setTimeoutID_vendorInput = useRef();
 
@@ -87,6 +58,7 @@ const Page = () => {
   const handleApplicationVendorChange = useCallback((event, value) => {
     setApplicationVendor(value);
   }, []);
+
   const handleVendorInputChange = useCallback(
     (event, value) => {
       if (!value) return;
@@ -143,77 +115,29 @@ const Page = () => {
     }));
   }, []);
 
-  const handleCalculateTotal =
-    (() => {
-      console.log("calculate total: ", purchaseItems);
-      if (Object.keys(purchaseItems).length) {
-        console.log("calculate: ", purchaseItems);
-        const subtotal = Object.values(purchaseItems).reduce(
-          (prev, current) => prev + current.quantity * current.unitPtice,
-          0
-        );
-        const taxRate = 0.05;
-        let tax = 0;
-        let total = 0;
+  const handleCalculateTotal = useCallback(() => {
+    console.log("calculate total: ", purchaseItems);
+    if (Object.keys(purchaseItems).length) {
+      console.log("calculate: ", purchaseItems);
+      const subtotal = Object.values(purchaseItems).reduce(
+        (prev, current) => prev + Number(current.quantity) * Number(current.unitPrice),
+        0
+      );
+      const taxRate = 0.05;
+      let tax = 0;
+      let total = 0;
 
-        if (Object.values(applicationVendor).length) {
-          const _dc = Math.random().toString().substring(2, 10);
-          const url =
-            "https://shiwpa-etrex9.garmin.com:9099/FINSystem/GetSubtotalToTotalAndTax.action?_dc=" +
-            _dc;
-
-          const formData = new URLSearchParams();
-          formData.append("amount", subtotal.toString());
-          formData.append("currencyCode", vendor.currency);
-          formData.append("taxCodeId", vendor.taxCodeId);
-          formData.append("roundingRule", vendor.roundingRule);
-
-          const body = {
-            url: url,
-            headers: {
-              Cookie: cookies,
-              "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            },
-            body: formData.toString(),
-          };
-          QueryData(JSON.stringify(body))
-            .then((res) => {
-              const _data = res.rows;
-              tax = _data.tax;
-              total = _data.price;
-            })
-            .catch((err) => console.error(err));
-        } else {
-          tax = (subtotal * taxRate).toFixed(2);
-          total = subtotal * (1 + taxRate).toFixed(2);
-        }
-        setTotal({ subtotal, tax, total });
-      }
-    },
-    [cookies, purchaseItems, applicationVendor]);
-
-  useEffect(() => {
-    if (Object.keys(prInfo).length) {
-      setPRNo(prInfo.prNo);
-      localStorage.setItem("pr_applicant", prInfo.applicant);
-      setApplicationReason(prInfo.reason);
-      setApplicationDescription(prInfo.prComment);
-    }
-  }, [prInfo]);
-
-  useEffect(() => {
-    if (cookies) {
-      const _dc = Date.now();
-
-      // get category
-      if (!localStorage.getItem("pr_category")) {
+      if (Object.values(applicationVendor).length) {
+        const _dc = Math.random().toString().substring(2, 10);
         const url =
-          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/QueryCategoryWithFilter.action?_dc=" +
+          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/GetSubtotalToTotalAndTax.action?_dc=" +
           _dc;
-        const formData = new URLSearchParams();
 
-        formData.append("sourceType", "PR");
-        formData.append("ouId", "86");
+        const formData = new URLSearchParams();
+        formData.append("amount", subtotal.toString());
+        formData.append("currencyCode", vendor.currency);
+        formData.append("taxCodeId", vendor.taxCodeId);
+        formData.append("roundingRule", vendor.roundingRule);
 
         const body = {
           url: url,
@@ -226,242 +150,18 @@ const Page = () => {
         QueryData(JSON.stringify(body))
           .then((res) => {
             const _data = res.rows;
-            localStorage.setItem("pr_category", JSON.stringify(_data));
-            setCategory(_data);
+            tax = _data.tax;
+            total = _data.price;
           })
           .catch((err) => console.error(err));
-      }
-
-      //get cost center
-      if (!localStorage.getItem("pr_cost_center")) {
-        const url =
-          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/QueryCostCenter.action?_dc=" + _dc;
-        const formData = new URLSearchParams();
-
-        formData.append("requestText", "86");
-
-        const body = {
-          url: url,
-          headers: {
-            Cookie: cookies,
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          body: formData.toString(),
-        };
-        QueryData(JSON.stringify(body))
-          .then((res) => {
-            const _data = res.rows;
-            localStorage.setItem("pr_cost_center", JSON.stringify(_data));
-            setCostCenter(_data);
-          })
-          .catch((err) => console.error(err));
-      }
-
-      //get cost center location/division
-      if (!localStorage.getItem("pr_cost_center_location")) {
-        const url =
-          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/QueryDivision.action?_dc=" + _dc;
-        const formData = new URLSearchParams();
-
-        formData.append("requestText", "86");
-
-        const body = {
-          url: url,
-          headers: {
-            Cookie: cookies,
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          body: formData.toString(),
-        };
-        QueryData(JSON.stringify(body))
-          .then((res) => {
-            const _data = res.rows;
-            const _unique_data = _data.reduce((accumulator, current) => {
-              const exists = accumulator.some((item) => item.orgCode === current.orgCode);
-
-              if (!exists) accumulator.push(current);
-
-              return accumulator;
-            }, []);
-            localStorage.setItem("pr_cost_center_location", JSON.stringify(_unique_data));
-            setCostCenterLocation(_unique_data);
-          })
-          .catch((err) => console.error(err));
-      }
-
-      //get location
-      if (!localStorage.getItem("pr_location")) {
-        const url =
-          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/GetAllLocation.action?_dc=" + _dc;
-        const formData = new URLSearchParams();
-
-        formData.append("requestText", "86");
-
-        const body = {
-          url: url,
-          headers: {
-            Cookie: cookies,
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          body: formData.toString(),
-        };
-        QueryData(JSON.stringify(body))
-          .then((res) => {
-            const _data = res.rows;
-            localStorage.setItem("pr_location", JSON.stringify(_data));
-            setLocation(_data);
-          })
-          .catch((err) => console.error(err));
-      }
-
-      //get financial project
-      if (!localStorage.getItem("pr_project")) {
-        const url =
-          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/QueryProject.action?_dc=" + _dc;
-        const formData = new URLSearchParams();
-
-        formData.append("requestText", "86");
-        formData.append("filterControl", "Y");
-
-        const body = {
-          url: url,
-          headers: {
-            Cookie: cookies,
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          body: formData.toString(),
-        };
-        QueryData(JSON.stringify(body))
-          .then((res) => {
-            const _data = res.rows;
-            localStorage.setItem("pr_project", JSON.stringify(_data));
-            setProject(_data);
-          })
-          .catch((err) => console.error(err));
-      }
-
-      //get DIY project
-      if (!localStorage.getItem("pr_diy_project")) {
-        const url =
-          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/QueryDiyProject.action?_dc=" + _dc;
-        const formData = new URLSearchParams();
-
-        formData.append("requestText", "false");
-        formData.append("userInput", "");
-
-        const body = {
-          url: url,
-          headers: {
-            Cookie: cookies,
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          body: formData.toString(),
-        };
-        QueryData(JSON.stringify(body))
-          .then((res) => {
-            const _data = res.rows;
-            localStorage.setItem("pr_diy_project", JSON.stringify(_data));
-            setDIYProject(_data);
-          })
-          .catch((err) => console.error(err));
-      }
-
-      //get employee accounts
-      if (!localStorage.getItem("pr_user_account")) {
-        const url =
-          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/QueryUserAccountsByUserInputRestrictLoction.action?_dc=" +
-          _dc;
-        const formData = new URLSearchParams();
-
-        formData.append("empidOrName", "");
-
-        const body = {
-          url: url,
-          headers: {
-            Cookie: cookies,
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          body: formData.toString(),
-        };
-        QueryData(JSON.stringify(body))
-          .then((res) => {
-            const _data = res.rows.filter((employee) => employee.costCenter === "672");
-            localStorage.setItem("pr_user_account", JSON.stringify(_data));
-            setUserAccount(_data);
-          })
-          .catch((err) => console.error(err));
-      }
-    }
-  }, [cookies]);
-
-  useEffect(() => {
-    if (Object.keys(prInfo).length) {
-      // const _applicantInfo = JSON.parse(localStorage.getItem("pr_user_account"))?.find(
-      const _applicantInfo = userAccount?.find((element) => element.sid === prInfo.applicant);
-      setApplicantInfo(_applicantInfo);
-      // console.log(_applicantInfo);
-    }
-  }, [userAccount, prInfo]);
-
-  useEffect(() => {
-    if (Object.keys(prInfo).length) {
-      if (paramPRNo) {
-        setApplicationCostCenter(
-          JSON.parse(localStorage.getItem("pr_cost_center"))?.find(
-            (element) => element.costCenterCode === prInfo.costCenter
-          )
-        );
       } else {
-        setApplicationCostCenter(
-          JSON.parse(localStorage.getItem("pr_cost_center"))?.find(
-            (element) => element.costCenterCode === applicantInfo?.costCenter
-          )
-        );
+        tax = (subtotal * taxRate).toFixed(2);
+        total = subtotal * (1 + taxRate).toFixed(2);
+        console.log({ subtotal, tax, total });
       }
+      setTotal((prev) => ({ ...prev, ...{ subtotal, tax, total } }));
     }
-  }, [costCenter, prInfo, applicantInfo]);
-
-  useEffect(() => {
-    if (Object.keys(prInfo).length) {
-      if (paramPRNo) {
-        setApplicationShipTo(
-          JSON.parse(localStorage.getItem("pr_location"))?.find(
-            (element) => element.locationId === prInfo.shipTo
-          )
-        );
-      } else {
-        setApplicationShipTo(
-          JSON.parse(localStorage.getItem("pr_location"))?.find(
-            (element) => element.orgId === applicantInfo?.orgId
-          )
-        );
-      }
-    }
-  }, [location, prInfo, applicantInfo]);
-
-  useEffect(() => {
-    if (Object.keys(prInfo).length) {
-      if (paramPRNo) {
-        setApplicationProject(
-          JSON.parse(localStorage.getItem("pr_project"))?.find(
-            (element) => element.xxProjectId.toString() === prInfo.project
-          )
-        );
-      }
-    }
-  }, [project, prInfo]);
-
-  useEffect(() => {
-    if (Object.keys(prInfo).length) {
-      if (paramPRNo) {
-        setApplicationDIYProject(
-          JSON.parse(localStorage.getItem("pr_diy_project"))?.find(
-            (element) => element.projectNo === prInfo.eco
-          )
-        );
-      }
-    }
-  }, [diyProject, prInfo]);
+  }, [cookies, purchaseItems, applicationVendor]);
 
   const handleApplicantChange = useCallback((event, value) => {
     console.log("new applicant: ", value);
@@ -502,35 +202,20 @@ const Page = () => {
                 </Button>
               </Stack>
             </Stack>
-            <SettingsPRApplication
-              prNo={prNo}
-              applicantInfo={applicantInfo}
-              userAccount={userAccount}
-              applicationCostCenter={applicationCostCenter}
-              costCenter={costCenter}
-              costCenterLocation={costCenterLocation}
-              applicationShipTo={applicationShipTo}
-              location={location}
-              applicationVendor={applicationVendor}
-              vendor={vendor}
-              handleApplicationVendorChange={handleApplicationVendorChange}
-              handleVendorInputChange={handleVendorInputChange}
-              applicationProject={applicationProject}
-              project={project}
-              applicationDIYProject={applicationDIYProject}
-              diyProject={diyProject}
-              requiredDate={requiredDate}
-              handleRequiredDateChange={handleRequiredDateChange}
-              applicationReason={applicationReason}
-              applicationDescription={applicationDescription}
-              purchaseItems={purchaseItems}
-              handleAddNewItemClick={handleAddNewItemClick}
-              handleItemInputChange={handleItemInputChange}
-              total={total}
-              handleCalculateTotal={handleCalculateTotal}
-              category={category}
-            />
-            {/* <SettingsPassword /> */}
+            <form>
+              <Stack direction="column" spacing={3}>
+                <SettingsPRApplication prOptions={prOptions} commonInfo={commonInfo} />
+                <Divider />
+                <PRItemTable
+                  items={purchaseItems}
+                  handleAddNewItemClick={handleAddNewItemClick}
+                  handleItemInputChange={handleItemInputChange}
+                  total={total}
+                  handleCalculateTotal={handleCalculateTotal}
+                  category={category}
+                />
+              </Stack>
+            </form>
           </Stack>
         </Container>
       </Box>

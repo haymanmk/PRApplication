@@ -14,8 +14,6 @@ import { useSelector } from "react-redux";
 import { PRSearch } from "src/sections/purchase-request/pr-search";
 import { PRTable } from "src/sections/purchase-request/pr-table";
 
-const now = new Date();
-
 let data = [];
 
 const usePRData = (data, page, rowsPerPage) => {
