@@ -1,7 +1,5 @@
 import {
   Box,
-  Button,
-  ButtonBase,
   Card,
   CardContent,
   CardHeader,
@@ -16,17 +14,17 @@ import {
 } from "@mui/material";
 import { Scrollbar } from "src/components/scrollbar";
 import { SettingsAutocomplete } from "./settings-autocomplete";
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef } from "react";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
 export const PRItemTable = (props) => {
   const {
     items,
+    category,
+    total,
     handleAddNewItemClick,
     handleItemInputChange,
-    total,
     handleCalculateTotal,
-    category,
   } = props;
   const setTimeoutID_calculateTotal = useRef();
 

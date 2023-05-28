@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import match from "autosuggest-highlight/match";
 import parse from "autosuggest-highlight/parse";
 
-export const SettingsAutocomplete = (props) => {
+export const SettingsAutocomplete = memo((props) => {
   const [inputValue, setInputValue] = useState();
 
   const { optionKeys, textFieldLabel } = props;
@@ -48,4 +48,4 @@ export const SettingsAutocomplete = (props) => {
       options={props.options || []}
     />
   );
-};
+});

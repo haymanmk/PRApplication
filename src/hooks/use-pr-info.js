@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
+import { useQueryPR } from "./use-query-pr";
 
-export const useCommonInfo = ({ userAccount, costCenter, location, project, diyProject }) => {
+export const usePRInfo = ({
+  paramPRNo,
+  userAccount,
+  costCenter,
+  location,
+  project,
+  diyProject,
+}) => {
   let prInfo = useQueryPR(paramPRNo).rows[0];
   const [prNo, setPRNo] = useState();
   const [applicantInfo, setApplicantInfo] = useState({
@@ -14,7 +22,10 @@ export const useCommonInfo = ({ userAccount, costCenter, location, project, diyP
   const [applicationDIYProject, setApplicationDIYProject] = useState({ displayValue: "" });
   const [applicationReason, setApplicationReason] = useState("");
   const [applicationDescription, setApplicationDescription] = useState("");
-  const [requiredDate, setRequiredData] = useState();
+  const [requiredDate, setRequiredDate] = useState();
+  const [total, setTotal] = useState({ subtotal: 0, tax: 0, total: 0 });
+  const [appliedData, setAppliedData] = useState();
+  const [purchaseItems, setPurchaseItems] = useState({});
 
   useEffect(() => {
     if (Object.keys(prInfo).length) {
@@ -104,6 +115,9 @@ export const useCommonInfo = ({ userAccount, costCenter, location, project, diyP
     applicationReason,
     applicationDescription,
     requiredDate,
+    total,
+    appliedData,
+    purchaseItems,
     setPRNo,
     setApplicantInfo,
     setApplicationCostCenter,
@@ -113,6 +127,9 @@ export const useCommonInfo = ({ userAccount, costCenter, location, project, diyP
     setApplicationDIYProject,
     setApplicationReason,
     setApplicationDescription,
-    setRequiredData,
+    setRequiredDate,
+    setTotal,
+    setAppliedData,
+    setPurchaseItems,
   };
 };

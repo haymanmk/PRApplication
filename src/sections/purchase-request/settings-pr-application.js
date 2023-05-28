@@ -8,40 +8,39 @@ import {
   TextField,
   createFilterOptions,
 } from "@mui/material";
-import { useCallback, useState } from "react";
 import { SettingsAutocomplete } from "./settings-autocomplete";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { memo } from "react";
 
-export const SettingsPRApplication = (props) => {
+export const SettingsPRApplication = memo(({ prOptions, prInfo, handleChange }) => {
+  const { userAccount, costCenter, costCenterLocation, location, vendor, project, diyProject } =
+    prOptions;
   const {
     prNo,
     applicantInfo,
-    userAccount,
-    handleApplicantChange,
     applicationCostCenter,
-    handleApplicationCostCenterChange,
-    costCenter,
-    costCenterLocation,
     applicationShipTo,
-    handleApplicationShipToChange,
-    location,
     applicationVendor,
-    vendor,
-    handleApplicationVendorChange,
-    handleVendorInputChange,
     applicationProject,
-    handleApplicationProjectChange,
-    project,
     applicationDIYProject,
-    handleApplicationDIYProjectChange,
-    diyProject,
     requiredDate,
-    handleRequiredDateChange,
     applicationReason,
     applicationDescription,
-  } = props;
+  } = prInfo;
+  const {
+    handleApplicantChange,
+    handleApplicationCostCenterChange,
+    handleApplicationShipToChange,
+    handleApplicationVendorChange,
+    handleVendorInputChange,
+    handleApplicationProjectChange,
+    handleApplicationDIYProjectChange,
+    handleRequiredDateChange,
+    handleReasonChange,
+    handleDescriptionChange,
+  } = handleChange;
 
   return (
     <Card>
@@ -149,6 +148,7 @@ export const SettingsPRApplication = (props) => {
             id="input_reason"
             label="Reason"
             value={applicationReason}
+            onChange={handleReasonChange}
           />
           <TextField
             required
@@ -157,14 +157,10 @@ export const SettingsPRApplication = (props) => {
             id="input_description"
             label="Description"
             value={applicationDescription}
+            onChange={handleDescriptionChange}
           />
         </Stack>
       </CardContent>
     </Card>
   );
-};
-
-const filterOptions = createFilterOptions({
-  matchFrom: "any",
-  stringify: (option) => option.empid + option.displayNameC,
 });
