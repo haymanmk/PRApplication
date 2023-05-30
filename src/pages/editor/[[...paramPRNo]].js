@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { Box, Button, Container, Divider, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Divider, Input, Stack, Typography } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
@@ -11,6 +11,7 @@ import { useGetPROptions } from "src/hooks/use-get-pr-options";
 import { usePRInfo } from "src/hooks/use-pr-info";
 import { useHandleChangePR } from "src/hooks/use-handle-change-pr";
 import { PRFilesTable } from "src/sections/purchase-request/settings-files-table";
+import { useRef } from "react";
 
 const Page = () => {
   const router = useRouter();
@@ -23,7 +24,7 @@ const Page = () => {
     prInfo,
     prOptions,
   });
-
+  const inputRef = useRef();
   return (
     <>
       <Head>

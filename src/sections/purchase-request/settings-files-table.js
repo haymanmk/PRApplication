@@ -6,6 +6,7 @@ import {
   Divider,
   Input,
   InputBase,
+  Paper,
   TableBody,
   TableCell,
   TableHead,
@@ -14,9 +15,11 @@ import {
 import { Stack } from "@mui/system";
 import { Scrollbar } from "src/components/scrollbar";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
+import { useRef } from "react";
 
 export const PRFilesTable = (props) => {
   const { files, handleAddFilesClick } = props;
+  const chooseFileRef = useRef();
 
   return (
     <Card>
@@ -40,18 +43,21 @@ export const PRFilesTable = (props) => {
                   );
                 })}
               <TableRow hover>
+                <input
+                  id="btn-add-files"
+                  type="file"
+                  ref={chooseFileRef}
+                  style={{ display: "none" }}
+                />
                 <TableCell
                   align="center"
                   colSpan={2}
-                  //   onClick={handleAddFilesClick}
+                  onClick={(event) => chooseFileRef.current.click()}
                   sx={{ cursor: "pointer" }}
                 >
                   <Stack direction="row" alignItems="center" justifyContent="center">
                     <FolderRoundedIcon />
-                    <span>
-                      Add
-                      <Input id="btn-add-files" type="file" style={{ display: "none" }} />
-                    </span>
+                    <span>Add</span>
                   </Stack>
                 </TableCell>
               </TableRow>
