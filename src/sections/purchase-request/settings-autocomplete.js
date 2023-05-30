@@ -7,7 +7,6 @@ export const SettingsAutocomplete = memo((props) => {
   const [inputValue, setInputValue] = useState();
 
   const { optionKeys, textFieldLabel } = props;
-  //   console.log(props.options);
 
   const combineOptionLabel = (option) => {
     if (optionKeys?.length > 1) {

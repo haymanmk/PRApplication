@@ -2,18 +2,15 @@ import Head from "next/head";
 import { Box, Button, Container, Divider, Stack, Typography } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
-import { useQueryPR } from "src/hooks/use-query-pr";
 import { useSelector } from "react-redux";
-import { useCallback, useEffect, useState, useRef } from "react";
-import { QueryData } from "src/utils/pr/query-data";
 import { SettingsPRApplication } from "src/sections/purchase-request/settings-pr-application";
 import { PRItemTable } from "src/sections/purchase-request/settings-item-table";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
-import { initForm, prLineForm } from "src/utils/pr/save-all-init-form";
 import { useGetPROptions } from "src/hooks/use-get-pr-options";
 import { usePRInfo } from "src/hooks/use-pr-info";
 import { useHandleChangePR } from "src/hooks/use-handle-change-pr";
+import { PRFilesTable } from "src/sections/purchase-request/settings-files-table";
 
 const Page = () => {
   const router = useRouter();
@@ -51,7 +48,11 @@ const Page = () => {
                 >
                   Save
                 </Button>
-                <Button disabled startIcon={<PlayCircleFilledRoundedIcon />} variant="contained">
+                <Button
+                  startIcon={<PlayCircleFilledRoundedIcon />}
+                  variant="contained"
+                  onClick={handleChange.handleSubmitClick}
+                >
                   Submit
                 </Button>
               </Stack>
@@ -63,15 +64,15 @@ const Page = () => {
                   prInfo={prInfo}
                   handleChange={handleChange}
                 />
-                <Divider />
                 <PRItemTable
                   items={prInfo.purchaseItems}
-                  category={prInfo.category}
+                  category={prOptions.category}
                   total={prInfo.total}
                   handleAddNewItemClick={handleChange.handleAddNewItemClick}
                   handleItemInputChange={handleChange.handleItemInputChange}
                   handleCalculateTotal={handleChange.handleCalculateTotal}
                 />
+                <PRFilesTable />
               </Stack>
             </form>
           </Stack>

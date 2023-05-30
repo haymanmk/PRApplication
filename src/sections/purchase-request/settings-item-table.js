@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Scrollbar } from "src/components/scrollbar";
 import { SettingsAutocomplete } from "./settings-autocomplete";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
 export const PRItemTable = (props) => {
@@ -27,26 +27,31 @@ export const PRItemTable = (props) => {
     handleCalculateTotal,
   } = props;
   const setTimeoutID_calculateTotal = useRef();
+  useEffect(() => {
+    console.log("total: ", total);
+  }, [total]);
 
-  const handleIntegerInputChange = useCallback((rowID, newValue) => {
-    Object.entries(newValue).map(([key, value]) => {
+  const handleIntegerInputChange = useCallback(
+    (rowID, key, value) => {
       value = value.replace(/[^0-9]/g, "");
       value = value.replace(/^0+(?=\d)/g, "");
 
-      handleItemInputChange(rowID, { [key]: value });
-    });
-  }, []);
+      handleItemInputChange(rowID, key, value);
+    },
+    [handleItemInputChange]
+  );
 
-  const handleFloatInputChange = useCallback((rowID, newValue) => {
-    Object.entries(newValue).map(([key, value]) => {
+  const handleFloatInputChange = useCallback(
+    (rowID, key, value) => {
       value = value.replace(/[^0-9.]/g, "");
       value = value.replace(/^0+(?=\d)/g, "");
       value = value.replace(/\.+(?=\.)/g, "");
       value = value.replace(/\.*(\.\d+)\.+/g, "$1");
 
-      handleItemInputChange(rowID, { [key]: value });
-    }, []);
-  }, []);
+      handleItemInputChange(rowID, key, value);
+    },
+    [handleItemInputChange]
+  );
 
   const handleSummation = useCallback(
     (rowID, row) => {
@@ -54,13 +59,16 @@ export const PRItemTable = (props) => {
       setTimeoutID_calculateTotal.current = setTimeout(() => {
         handleCalculateTotal();
       }, 2000);
-      handleItemInputChange(rowID, {
-        sum: (Number(row.quantity) * Number(row.unitPrice)).toFixed(2),
-      });
+      handleItemInputChange(
+        rowID,
+        "sum",
+        (Number(row.quantity) * Number(row.unitPrice)).toFixed(2)
+      );
     },
-    [items]
+    [items, handleItemInputChange]
   );
 
+  useEffect(() => console.log("items: ", items), [items]);
   return (
     <Card>
       <CardHeader title="Items" />
@@ -80,73 +88,73 @@ export const PRItemTable = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Object.entries(items)?.map(([key, row]) => {
-                  //   const row = items[key];
-                  return (
-                    <TableRow hover key={key}>
-                      <TableCell>
-                        <SettingsAutocomplete
-                          defaultValue={{ displayName: "09-01. consumption materials" }}
-                          value={row.category}
-                          onChange={(event, newValue) => {
-                            handleItemInputChange(key, { category: newValue });
-                          }}
-                          options={category}
-                          optionKeys={["displayName"]}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          multiline
-                          value={row.spec}
-                          onChange={(event) => {
-                            handleItemInputChange(key, { spec: event.target.value });
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          multiline
-                          value={row.description}
-                          onChange={(event) => {
-                            handleItemInputChange(key, { description: event.target.value });
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={row.quantity}
-                          onChange={(event) => {
-                            handleIntegerInputChange(key, { quantity: event.target.value });
-                          }}
-                          onBlur={() => {
-                            if (!items[key].quantity) handleItemInputChange(key, { quantity: 0 });
-                            handleSummation(key, row);
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={row.unitPrice}
-                          onChange={(event) => {
-                            handleFloatInputChange(key, { unitPrice: event.target.value });
-                          }}
-                          onBlur={(event) => {
-                            const float = parseFloat(event.target.value);
-                            if (!float) handleItemInputChange(key, { unitPrice: 0 });
-                            else handleItemInputChange(key, { unitPrice: float });
-                            handleSummation(key, row);
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>{row.sum}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                {items.length &&
+                  items.map((row, index) => {
+                    const key = row.prLineId;
+                    return (
+                      <TableRow hover key={key}>
+                        <TableCell>
+                          <SettingsAutocomplete
+                            value={row.category}
+                            onChange={(event, newValue) => {
+                              handleItemInputChange(key, "category", newValue);
+                            }}
+                            options={category}
+                            optionKeys={["displayName"]}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            fullWidth
+                            multiline
+                            value={row.spec}
+                            onChange={(event) => {
+                              handleItemInputChange(key, "spec", event.target.value);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            fullWidth
+                            multiline
+                            value={row.description}
+                            onChange={(event) => {
+                              handleItemInputChange(key, "description", event.target.value);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            fullWidth
+                            value={row.quantity}
+                            onChange={(event) => {
+                              handleIntegerInputChange(key, "quantity", event.target.value);
+                            }}
+                            onBlur={() => {
+                              if (!items[key].quantity) handleItemInputChange(key, "quantity", 0);
+                              handleSummation(key, row);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            fullWidth
+                            value={row.unitPrice}
+                            onChange={(event) => {
+                              handleFloatInputChange(key, "unitPrice", event.target.value);
+                            }}
+                            onBlur={(event) => {
+                              const float = parseFloat(event.target.value);
+                              if (!float) handleItemInputChange(key, "unitPrice", 0);
+                              else handleItemInputChange(key, "unitPrice", float);
+                              handleSummation(key, row);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>{row.sum}</TableCell>
+                      </TableRow>
+                    );
+                  })}
                 <TableRow hover>
                   <TableCell
                     align="center"

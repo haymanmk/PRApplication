@@ -1,18 +1,9 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Divider,
-  Grid,
-  Stack,
-  TextField,
-  createFilterOptions,
-} from "@mui/material";
+import { Card, CardContent, CardHeader, Divider, Grid, Stack, TextField } from "@mui/material";
 import { SettingsAutocomplete } from "./settings-autocomplete";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 
 export const SettingsPRApplication = memo(({ prOptions, prInfo, handleChange }) => {
   const { userAccount, costCenter, costCenterLocation, location, vendor, project, diyProject } =
@@ -21,6 +12,7 @@ export const SettingsPRApplication = memo(({ prOptions, prInfo, handleChange }) 
     prNo,
     applicantInfo,
     applicationCostCenter,
+    applicationCostCenterLocation,
     applicationShipTo,
     applicationVendor,
     applicationProject,
@@ -32,6 +24,7 @@ export const SettingsPRApplication = memo(({ prOptions, prInfo, handleChange }) 
   const {
     handleApplicantChange,
     handleApplicationCostCenterChange,
+    handleApplicationCostCenterLocationChange,
     handleApplicationShipToChange,
     handleApplicationVendorChange,
     handleVendorInputChange,
@@ -41,6 +34,10 @@ export const SettingsPRApplication = memo(({ prOptions, prInfo, handleChange }) 
     handleReasonChange,
     handleDescriptionChange,
   } = handleChange;
+
+  useEffect(() => {
+    console.log("applicationCostCenterLocation: ", applicationCostCenterLocation);
+  }, [applicationCostCenterLocation]);
 
   return (
     <Card>
@@ -74,8 +71,8 @@ export const SettingsPRApplication = memo(({ prOptions, prInfo, handleChange }) 
             <SettingsAutocomplete
               required
               id="input_cost_center_location"
-              // value={}
-              defaultValue={{ orgCode: "不分廠" }}
+              value={applicationCostCenterLocation}
+              onChange={handleApplicationCostCenterLocationChange}
               options={costCenterLocation}
               optionKeys={["orgCode"]}
               textFieldLabel="Cost Center Location"

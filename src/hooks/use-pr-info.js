@@ -5,27 +5,29 @@ export const usePRInfo = ({
   paramPRNo,
   userAccount,
   costCenter,
+  costCenterLocation,
   location,
   project,
   diyProject,
 }) => {
-  let prInfo = useQueryPR(paramPRNo).rows[0];
+  const { prInfo, setPRInfo } = useQueryPR(paramPRNo);
   const [prNo, setPRNo] = useState();
   const [applicantInfo, setApplicantInfo] = useState({
     empid: "",
     displayNameC: "",
   });
   const [applicationCostCenter, setApplicationCostCenter] = useState({ displayName: "" });
+  const [applicationCostCenterLocation, setApplicationCostCenterLocation] = useState({});
   const [applicationShipTo, setApplicationShipTo] = useState({ locationCode: "" });
   const [applicationVendor, setApplicationVendor] = useState({});
   const [applicationProject, setApplicationProject] = useState({ projectName: "" });
   const [applicationDIYProject, setApplicationDIYProject] = useState({ displayValue: "" });
   const [applicationReason, setApplicationReason] = useState("");
   const [applicationDescription, setApplicationDescription] = useState("");
-  const [requiredDate, setRequiredDate] = useState();
+  const [requiredDate, setRequiredDate] = useState(new Date().toISOString());
   const [total, setTotal] = useState({ subtotal: 0, tax: 0, total: 0 });
   const [appliedData, setAppliedData] = useState();
-  const [purchaseItems, setPurchaseItems] = useState({});
+  const [purchaseItems, setPurchaseItems] = useState([]);
 
   useEffect(() => {
     if (Object.keys(prInfo).length) {
@@ -38,10 +40,9 @@ export const usePRInfo = ({
 
   useEffect(() => {
     if (Object.keys(prInfo).length) {
-      // const _applicantInfo = JSON.parse(localStorage.getItem("pr_user_account"))?.find(
       const _applicantInfo = userAccount?.find((element) => element.sid === prInfo.applicant);
       setApplicantInfo(_applicantInfo);
-      // console.log(_applicantInfo);
+      // console.log("_applicantInfo: ", _applicantInfo);
     }
   }, [userAccount, prInfo]);
 
@@ -63,6 +64,20 @@ export const usePRInfo = ({
     }
   }, [costCenter, prInfo, applicantInfo]);
 
+  useEffect(() => {
+    if (Object?.keys(prInfo).length) {
+      if (paramPRNo) {
+        setApplicationCostCenterLocation(
+          costCenterLocation?.find((element) => element.orgCode === prInfo.prLine[0]?.divisionCode)
+        );
+      } else {
+        // console.log("costCenterLocation: ", costCenterLocation);
+        setApplicationCostCenterLocation(
+          costCenterLocation?.find((element) => element.orgCode === "不分廠")
+        );
+      }
+    }
+  }, [costCenterLocation, prInfo]);
   useEffect(() => {
     if (Object.keys(prInfo).length) {
       if (paramPRNo) {
@@ -106,8 +121,11 @@ export const usePRInfo = ({
   }, [diyProject, prInfo]);
 
   return {
+    prInfo,
     prNo,
+    applicantInfo,
     applicationCostCenter,
+    applicationCostCenterLocation,
     applicationShipTo,
     applicationVendor,
     applicationProject,
@@ -118,9 +136,11 @@ export const usePRInfo = ({
     total,
     appliedData,
     purchaseItems,
+    setPRInfo,
     setPRNo,
     setApplicantInfo,
     setApplicationCostCenter,
+    setApplicationCostCenterLocation,
     setApplicationShipTo,
     setApplicationVendor,
     setApplicationProject,

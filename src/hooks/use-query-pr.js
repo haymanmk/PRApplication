@@ -4,7 +4,7 @@ import { useGetCookies } from "./use-get-cookies";
 const { useEffect, useState } = require("react");
 
 export function useQueryPR(prNum = undefined) {
-  const [pr, setPR] = useState({ rows: [{}] });
+  const [prInfo, setPRInfo] = useState({});
   const cookies = useSelector((state) => state.cookies);
   const formData = new URLSearchParams();
 
@@ -39,12 +39,12 @@ export function useQueryPR(prNum = undefined) {
       })
         .then((res) => res.json())
         .then((res) => {
-          // console.log(res);
-          setPR(res);
+          console.log("prInfo: ", res?.rows[0]);
+          setPRInfo(res?.rows[0]);
         })
         .catch((err) => console.error(err));
     }
   }, [cookies]);
 
-  return pr;
+  return { prInfo, setPRInfo };
 }
