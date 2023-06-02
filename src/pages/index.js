@@ -102,7 +102,7 @@ const Page = () => {
               </div>
             </Stack>
             <PRSearch />
-            {data.length && (
+            {
               <PRTable
                 count={data.length}
                 items={PRs}
@@ -116,7 +116,7 @@ const Page = () => {
                 rowsPerPage={rowsPerPage}
                 selected={PRsSelection.selected}
               />
-            )}
+            }
           </Stack>
         </Container>
       </Box>

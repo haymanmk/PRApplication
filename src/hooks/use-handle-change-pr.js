@@ -327,6 +327,33 @@ export const useHandleChangePR = ({ cookies, prInfo, prOptions }) => {
     [prOptions]
   );
 
+  const handleFileInputChange = useCallback(
+    (event) => {
+      console.log(event.target.files);
+      prInfo.setAttachments((prev) => [
+        ...prev,
+        ...Object.values(event.target.files).map((file) => ({
+          attachment: file,
+        })),
+      ]);
+    },
+    [prInfo]
+  );
+
+  const handleAttachmentCategoryChange = useCallback(
+    (index, value) => {
+      const _attachments = Object.assign([], prInfo.attachments);
+      _attachments[index]["category"] = value;
+      prInfo.setAttachments(_attachments);
+      // prInfo.setAttachments((prev) => {
+      //   prev[index]["category"] = value;
+      //   return prev;
+      // });
+    },
+    [prInfo]
+  );
+  const handleUploadFile = useCallback();
+
   return {
     handleSaveClick,
     handleSubmitClick,
@@ -345,5 +372,7 @@ export const useHandleChangePR = ({ cookies, prInfo, prOptions }) => {
     handleItemInputChange,
     handleCalculateTotal,
     handleCostCenterChange,
+    handleFileInputChange,
+    handleAttachmentCategoryChange,
   };
 };

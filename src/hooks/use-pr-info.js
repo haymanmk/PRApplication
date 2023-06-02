@@ -28,6 +28,7 @@ export const usePRInfo = ({
   const [total, setTotal] = useState({ subtotal: 0, tax: 0, total: 0 });
   const [appliedData, setAppliedData] = useState();
   const [purchaseItems, setPurchaseItems] = useState([]);
+  const [attachments, setAttachments] = useState([]);
 
   useEffect(() => {
     if (Object.keys(prInfo).length) {
@@ -136,6 +137,7 @@ export const usePRInfo = ({
     total,
     appliedData,
     purchaseItems,
+    attachments,
     setPRInfo,
     setPRNo,
     setApplicantInfo,
@@ -151,5 +153,6 @@ export const usePRInfo = ({
     setTotal,
     setAppliedData,
     setPurchaseItems,
+    setAttachments,
   };
 };

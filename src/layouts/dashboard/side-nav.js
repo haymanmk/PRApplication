@@ -54,7 +54,7 @@ export const SideNav = (props) => {
           >
             <Logo />
           </Box>
-          <Box
+          {/* <Box
             sx={{
               alignItems: "center",
               backgroundColor: "rgba(255, 255, 255, 0.04)",
@@ -77,20 +77,20 @@ export const SideNav = (props) => {
             <SvgIcon fontSize="small" sx={{ color: "neutral.500" }}>
               <ChevronUpDownIcon />
             </SvgIcon>
-          </Box>
+          </Box> */}
         </Box>
         <Divider sx={{ borderColor: "neutral.700" }} />
         <Box
           component="nav"
           sx={{
             flexGrow: 1,
-            px: 2,
+            px: 1,
             py: 3,
           }}
         >
           <Stack
             component="ul"
-            spacing={0.5}
+            spacing={3}
             sx={{
               listStyle: "none",
               p: 0,
@@ -178,7 +178,7 @@ export const SideNav = (props) => {
           sx: {
             backgroundColor: "neutral.800",
             color: "common.white",
-            width: 280,
+            width: 80,
           },
         }}
         variant="permanent"
@@ -197,7 +197,7 @@ export const SideNav = (props) => {
         sx: {
           backgroundColor: "neutral.800",
           color: "common.white",
-          width: 280,
+          width: 80,
         },
       }}
       sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}

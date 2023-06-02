@@ -19,6 +19,9 @@ export const useGetPROptions = (cookies) => {
       },
     ]
   );
+  const [attachmentCategory, setAttachmentCategory] = useState(
+    JSON.parse(localStorage.getItem("pr_attachment_category"))
+  );
 
   useEffect(() => {
     if (cookies) {
@@ -210,6 +213,25 @@ export const useGetPROptions = (cookies) => {
           })
           .catch((err) => console.error(err));
       }
+
+      //get attachment category
+      if (!localStorage.getItem("pr_attachment_category")) {
+        const url =
+          "https://shiwpa-etrex9.garmin.com:9099/FINSystem/PrGetAttachCateg.action?_dc=" + _dc;
+        const body = {
+          url: url,
+          headers: {
+            Cookie: cookies,
+          },
+          body: null,
+        };
+
+        QueryData(JSON.stringify(body)).then((res) => {
+          const _data = res.rows;
+          localStorage.setItem("pr_attachment_category", JSON.stringify(_data));
+          setAttachmentCategory(_data);
+        });
+      }
     }
   }, [cookies]);
 
@@ -222,6 +244,7 @@ export const useGetPROptions = (cookies) => {
     project,
     diyProject,
     userAccount,
+    attachmentCategory,
     setCategory,
     setCostCenter,
     setCostCenterLocation,
@@ -230,5 +253,6 @@ export const useGetPROptions = (cookies) => {
     setProject,
     setDIYProject,
     setUserAccount,
+    setAttachmentCategory,
   };
 };

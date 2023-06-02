@@ -88,73 +88,72 @@ export const PRItemTable = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.length &&
-                  items.map((row, index) => {
-                    const key = row.prLineId;
-                    return (
-                      <TableRow hover key={key}>
-                        <TableCell>
-                          <SettingsAutocomplete
-                            value={row.category}
-                            onChange={(event, newValue) => {
-                              handleItemInputChange(key, "category", newValue);
-                            }}
-                            options={category}
-                            optionKeys={["displayName"]}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            fullWidth
-                            multiline
-                            value={row.spec}
-                            onChange={(event) => {
-                              handleItemInputChange(key, "spec", event.target.value);
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            fullWidth
-                            multiline
-                            value={row.description}
-                            onChange={(event) => {
-                              handleItemInputChange(key, "description", event.target.value);
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            fullWidth
-                            value={row.quantity}
-                            onChange={(event) => {
-                              handleIntegerInputChange(key, "quantity", event.target.value);
-                            }}
-                            onBlur={() => {
-                              if (!items[key].quantity) handleItemInputChange(key, "quantity", 0);
-                              handleSummation(key, row);
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            fullWidth
-                            value={row.unitPrice}
-                            onChange={(event) => {
-                              handleFloatInputChange(key, "unitPrice", event.target.value);
-                            }}
-                            onBlur={(event) => {
-                              const float = parseFloat(event.target.value);
-                              if (!float) handleItemInputChange(key, "unitPrice", 0);
-                              else handleItemInputChange(key, "unitPrice", float);
-                              handleSummation(key, row);
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>{row.sum}</TableCell>
-                      </TableRow>
-                    );
-                  })}
+                {items?.map((row, index) => {
+                  const key = row.prLineId;
+                  return (
+                    <TableRow hover key={key}>
+                      <TableCell>
+                        <SettingsAutocomplete
+                          value={row.category}
+                          onChange={(event, newValue) => {
+                            handleItemInputChange(key, "category", newValue);
+                          }}
+                          options={category}
+                          optionKeys={["displayName"]}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          fullWidth
+                          multiline
+                          value={row.spec}
+                          onChange={(event) => {
+                            handleItemInputChange(key, "spec", event.target.value);
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          fullWidth
+                          multiline
+                          value={row.description}
+                          onChange={(event) => {
+                            handleItemInputChange(key, "description", event.target.value);
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          fullWidth
+                          value={row.quantity}
+                          onChange={(event) => {
+                            handleIntegerInputChange(key, "quantity", event.target.value);
+                          }}
+                          onBlur={() => {
+                            if (!items[key].quantity) handleItemInputChange(key, "quantity", 0);
+                            handleSummation(key, row);
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          fullWidth
+                          value={row.unitPrice}
+                          onChange={(event) => {
+                            handleFloatInputChange(key, "unitPrice", event.target.value);
+                          }}
+                          onBlur={(event) => {
+                            const float = parseFloat(event.target.value);
+                            if (!float) handleItemInputChange(key, "unitPrice", 0);
+                            else handleItemInputChange(key, "unitPrice", float);
+                            handleSummation(key, row);
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>{row.sum}</TableCell>
+                    </TableRow>
+                  );
+                })}
                 <TableRow hover>
                   <TableCell
                     align="center"
