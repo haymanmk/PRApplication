@@ -13,17 +13,48 @@ import {
 import { Stack } from "@mui/system";
 import { Scrollbar } from "src/components/scrollbar";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import { useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { SettingsAutocomplete } from "./settings-autocomplete";
+import { SelectFilesDialog } from "./settings-select-files";
 
 export const PRFilesTable = (props) => {
-  const {
-    attachments,
-    category = [],
-    handleFileInputChange,
-    handleAttachmentCategoryChange,
-  } = props;
-  const chooseFileRef = useRef();
+  const [openSelectFilesDialog, setOpenSelectFilesDialog] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const { attachments, category = [], handleUploadFile } = props;
+
+  const handleFileInputChange = useCallback((event) => {
+    setSelectedFiles((prev) => [
+      ...prev,
+      ...Object.values(event.target.files).map((file) => ({
+        attachment: file,
+        category: category[0],
+      })),
+    ]);
+  }, []);
+
+  const handleFileCategoryChange = useCallback(
+    (index, value) => {
+      // console.log("Category changed to: ", value);
+      const _selectedFiles = Object.assign([], selectedFiles);
+      _selectedFiles[index]["category"] = value;
+      setSelectedFiles(_selectedFiles);
+    },
+    [selectedFiles]
+  );
+
+  const handleOpenSelectFilesDialog = useCallback((_) => {
+    setSelectedFiles([]);
+    setOpenSelectFilesDialog(true);
+  }, []);
+
+  const handleCloseSelectFilesDialog = useCallback((_) => {
+    setOpenSelectFilesDialog(false);
+  }, []);
+
+  const handleUploadButtonClicked = useCallback(() => {
+    // console.log("selectedFiles: ", selectedFiles);
+    handleUploadFile(selectedFiles);
+  }, [selectedFiles]);
 
   return (
     <Card>
@@ -41,7 +72,7 @@ export const PRFilesTable = (props) => {
               </TableHead>
               <TableBody>
                 {attachments?.map((file, index) => {
-                  console.log("file: ", file);
+                  // console.log("file: ", file);
                   return (
                     <TableRow hover key={index}>
                       <TableCell>{file.attachment.name}</TableCell>
@@ -59,18 +90,18 @@ export const PRFilesTable = (props) => {
                   );
                 })}
                 <TableRow hover>
-                  <input
+                  {/* <input
                     id="btn-add-files"
                     type="file"
                     multiple
                     ref={chooseFileRef}
                     onChange={handleFileInputChange}
                     style={{ display: "none" }}
-                  />
+                  /> */}
                   <TableCell
                     align="center"
                     colSpan={2}
-                    onClick={(event) => chooseFileRef.current.click()}
+                    onClick={handleOpenSelectFilesDialog}
                     sx={{ cursor: "pointer" }}
                   >
                     <Stack
@@ -89,6 +120,15 @@ export const PRFilesTable = (props) => {
           </Box>
         </Scrollbar>
       </CardContent>
+      <SelectFilesDialog
+        open={openSelectFilesDialog}
+        selectedFiles={selectedFiles}
+        category={category}
+        handleFileInputChange={handleFileInputChange}
+        handleFileCategoryChange={handleFileCategoryChange}
+        handleClose={handleCloseSelectFilesDialog}
+        handleUploadButtonClicked={handleUploadButtonClicked}
+      />
     </Card>
   );
 };

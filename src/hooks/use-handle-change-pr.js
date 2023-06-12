@@ -1,6 +1,7 @@
 import { useCallback, useRef } from "react";
 import { QueryData } from "src/utils/pr/query-data";
 import { initForm, prLineForm } from "src/utils/pr/save-all-init-form";
+import { UploadFile } from "src/utils/pr/upload-file";
 
 export const useHandleChangePR = ({ cookies, prInfo, prOptions }) => {
   const setTimeoutID_vendorInput = useRef();
@@ -99,6 +100,7 @@ export const useHandleChangePR = ({ cookies, prInfo, prOptions }) => {
           });
           prInfo.setPurchaseItems(_purchaseItems);
           _id.current = 0;
+          // handleUploadFile(cookies, prInfo.prInfo.prHeaderId);
         })
         .catch((err) => console.error(err));
     },
@@ -345,14 +347,55 @@ export const useHandleChangePR = ({ cookies, prInfo, prOptions }) => {
       const _attachments = Object.assign([], prInfo.attachments);
       _attachments[index]["category"] = value;
       prInfo.setAttachments(_attachments);
-      // prInfo.setAttachments((prev) => {
-      //   prev[index]["category"] = value;
-      //   return prev;
-      // });
     },
     [prInfo]
   );
-  const handleUploadFile = useCallback();
+  const handleUploadFile = useCallback(
+    (files) => {
+      const prHeaderId = prInfo.prInfo?.prHeaderId;
+
+      if (cookies && prHeaderId) {
+        const url = "https://shiwpa-etrex9.garmin.com:9099/FINSystem/PrFileUpload.action";
+
+        const formData = new FormData();
+        formData.set("cookies", cookies);
+        formData.set("prHeaderId", prHeaderId);
+        formData.set("rev", 0);
+
+        files.map((file, index) => {
+          console.log("Uploading file: ", file);
+          const requestText = {
+            prHeaderId: prHeaderId,
+            rev: 0,
+            categoryId: file.category.filetypecode,
+            supplierEnable: 0,
+            comments: file.comments || "",
+          };
+
+          formData.set("requestText", JSON.stringify(requestText));
+          formData.set("categoryId", file.category.filetypecode);
+          formData.set("supplierEnable", 0);
+          formData.set("comments", file.comments || "");
+          formData.set("attachment", file.attachment);
+
+          UploadFile(formData)
+            .then((res) => {
+              console.log(res);
+              if (res.success) {
+                const _data = res.message.rows[0];
+                file["fileUrl"] = _data.fileUrl;
+                prInfo.setAttachments((prev) => [...prev, file]);
+              }
+            })
+            .catch((err) => console.error);
+        });
+      } else {
+        if (!cookies) console.error("Cookies shall not be empty.");
+        if (!prHeaderId) console.error("prHeaderId shall not be empty.");
+      }
+    },
+    [cookies, prInfo]
+  );
 
   return {
     handleSaveClick,
@@ -374,5 +417,6 @@ export const useHandleChangePR = ({ cookies, prInfo, prOptions }) => {
     handleCostCenterChange,
     handleFileInputChange,
     handleAttachmentCategoryChange,
+    handleUploadFile,
   };
 };

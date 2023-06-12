@@ -76,7 +76,7 @@ const Page = () => {
                   attachments={prInfo.attachments}
                   category={prOptions.attachmentCategory}
                   handleFileInputChange={handleChange.handleFileInputChange}
-                  handleAttachmentCategoryChange={handleChange.handleAttachmentCategoryChange}
+                  handleUploadFile={handleChange.handleUploadFile}
                 />
               </Stack>
             </form>
